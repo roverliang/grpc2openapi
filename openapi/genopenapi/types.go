@@ -1,9 +1,10 @@
-package openapi
+package genopenapi
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+
 	"github.com/roverliang/grpc2openapi/openapi/descriptor"
 )
 

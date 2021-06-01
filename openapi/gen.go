@@ -120,7 +120,7 @@ func Tags(fds []*desc.FileDescriptor) (tags []string) {
 }
 
 func Paths(fds []*desc.FileDescriptor) (openapiPathsObject, error) {
-	var openapiPathObj = openapiPathsObject{}
+	var openapiPathObj = make(openapiPathsObject)
 
 	for _, fd := range fds {
 		if fd.GetFile().GetName() == reflectionProto {
@@ -148,8 +148,7 @@ func Paths(fds []*desc.FileDescriptor) (openapiPathsObject, error) {
 			}
 		}
 	}
-
-	return nil, nil
+	return openapiPathObj, nil
 }
 
 

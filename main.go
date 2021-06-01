@@ -9,11 +9,11 @@ import (
 var rootCommand = &cobra.Command{
 	Use:     "grpc2openapi",
 	Short:   "grpc2openapi relies on reflection or protos or protoset to generate swagger json",
-	Version: "v0.4.7",
+	Version: "v0.1.0",
 }
 
 func main() {
-	rootCommand.AddCommand()
+	rootCommand.AddCommand(cmd.GenCommand)
 	err := rootCommand.Execute()
 	if err != nil {
 		klog.Error(err)

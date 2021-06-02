@@ -15,6 +15,9 @@ import (
 
 // Registry is a registry of information extracted from pluginpb.CodeGeneratorRequest.
 type Registry struct {
+	//namespace is RESTful api prefix .suchas: http://__HOST__/namespace/__API__
+	namespace string
+
 	// msgs is a mapping from fully-qualified message name to descriptor
 	msgs map[string]*Message
 
@@ -648,4 +651,15 @@ func (r *Registry) GetOpenAPIServiceOption(qualifiedService string) (*options.Ta
 func (r *Registry) GetOpenAPIFieldOption(qualifiedField string) (*options.JSONSchema, bool) {
 	opt, ok := r.fieldOptions[qualifiedField]
 	return opt, ok
+}
+
+// SetNamespace set RESTful api prefix
+func (r *Registry)SetNamespace(namespace string){
+	r.namespace = namespace
+}
+
+
+// GetNamespace return a RESTful api prefix
+func (r *Registry)GetNamespace ()string {
+	return r.namespace
 }

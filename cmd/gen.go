@@ -28,14 +28,16 @@ var (
 	simpleOperationIDs         bool
 	openAPIConfiguration       string
 	generateUnboundMethods     bool
+	namespace string
 )
 
 func init() {
+	GenCommand.Flags().StringVar(&namespace, "namespace", "", "RESTful API prefix")
 	GenCommand.Flags().StringVar(&importPrefix, "import_prefix", "", "prefix to be added to go package paths for imported proto files")
 	GenCommand.Flags().StringVar(&file, "file", "-", "where to load data from")
 	GenCommand.Flags().BoolVar(&allowDeleteBody, "allow_delete_body", false, "unless set, HTTP DELETE methods may not have a body")
 	GenCommand.Flags().StringVar(&grpcAPIConfiguration, "grpc_api_configuration", "", "path to file which describes the gRPC API Configuration in YAML format")
-	GenCommand.Flags().BoolVar(&allowMerge, "allow_merge", false, "if set, generation one OpenAPI file out of multiple protos")
+	GenCommand.Flags().BoolVar(&allowMerge, "allow_merge", true, "if set, generation one OpenAPI file out of multiple protos")
 	GenCommand.Flags().StringVar(&mergeFileName, "merge_file_name", "api", "target OpenAPI file name prefix after merge")
 	GenCommand.Flags().BoolVar(&useJSONNamesForFields, "json_names_for_fields", true, "if disabled, the original proto name will be used for generating OpenAPI definitions")
 	GenCommand.Flags().StringVar(&repeatedPathParamSeparator, "repeated_path_param_separator", "csv", "configures how repeated fields should be split. Allowed values are `csv`, `pipes`, `ssv` and `tsv`")
@@ -51,7 +53,6 @@ func init() {
 	GenCommand.Flags().BoolVar(&generateUnboundMethods, "generate_unbound_methods", true, "generate swagger metadata even for RPC methods that have no HttpRule annotation")
 }
 
-
 var GenCommand = &cobra.Command{
 	Use:   "gen",
 	Short: "gen swagger api",
@@ -64,6 +65,8 @@ var GenCommand = &cobra.Command{
 		}
 
 		reg := descriptor.NewRegistry()
+
+		reg.SetNamespace(namespace)
 		reg.SetPrefix(importPrefix)
 		reg.SetAllowDeleteBody(allowDeleteBody)
 		reg.SetAllowMerge(allowMerge)

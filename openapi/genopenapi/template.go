@@ -1193,7 +1193,15 @@ func renderServices(services []*descriptor.Service, paths openapiPathsObject, re
 				case "PATCH":
 					pathItemObject.Patch = operationObject
 				}
-				paths[templateToOpenAPIPath(b.PathTmpl.Template, reg, meth.RequestType.Fields, msgs)] = pathItemObject
+
+				var path string
+
+				path = templateToOpenAPIPath(b.PathTmpl.Template, reg, meth.RequestType.Fields, msgs)
+				if reg.GetNamespace() != ""{
+					path = fmt.Sprintf("/%s%s", reg.GetNamespace(), path)
+				}
+
+				paths[path] = pathItemObject
 			}
 		}
 	}

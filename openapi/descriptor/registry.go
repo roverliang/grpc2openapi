@@ -663,3 +663,5 @@ func (r *Registry)SetNamespace(namespace string){
 func (r *Registry)GetNamespace ()string {
 	return r.namespace
 }
+
+

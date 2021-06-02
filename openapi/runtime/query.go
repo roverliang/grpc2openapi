@@ -12,7 +12,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	wrapperspb "github.com/golang/protobuf/ptypes/wrappers"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/utilities"
+	"github.com/roverliang/grpc2openapi/openapi/utilities"
 	"google.golang.org/genproto/protobuf/field_mask"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/protobuf/proto"

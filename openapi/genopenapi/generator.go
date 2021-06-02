@@ -233,10 +233,6 @@ func AddErrorDefs(reg *descriptor.Registry) error {
 	// TODO(johanbrandhorst): Use new conversion later when possible
 	// any := protodesc.ToFileDescriptorProto((&anypb.Any{}).ProtoReflect().Descriptor().ParentFile())
 	// status := protodesc.ToFileDescriptorProto((&statuspb.Status{}).ProtoReflect().Descriptor().ParentFile())
-	return reg.Load(&pluginpb.CodeGeneratorRequest{
-		ProtoFile: []*descriptorpb.FileDescriptorProto{
-			any,
-			status,
-		},
-	})
+	//
+	return nil
 }

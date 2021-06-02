@@ -2,16 +2,15 @@ package descriptor
 
 import (
 	"fmt"
-	"github.com/roverliang/grpc2openapi/openapi/descriptor/openapiconfig"
+	"github.com/jhump/protoreflect/desc"
 	"strings"
 
 	"github.com/golang/glog"
-	_ "github.com/roverliang/grpc2openapi/openapi/descriptor/apiconfig"
+	"github.com/roverliang/grpc2openapi/openapi/descriptor/openapiconfig"
 	"github.com/roverliang/grpc2openapi/openapi/options"
+
 	"google.golang.org/genproto/googleapis/api/annotations"
-	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/types/descriptorpb"
-	"google.golang.org/protobuf/types/pluginpb"
 )
 
 // Registry is a registry of information extracted from pluginpb.CodeGeneratorRequest.
@@ -138,27 +137,26 @@ func NewRegistry() *Registry {
 }
 
 // Load loads definitions of services, methods, messages, enumerations and fields from "req".
-func (r *Registry) Load(req *pluginpb.CodeGeneratorRequest) error {
-	gen, err := protogen.Options{}.New(req)
-	if err != nil {
-		return err
-	}
-	return r.load(gen)
+func (r *Registry) Load(req []*desc.FileDescriptor) error {
+	return r.load(req)
 }
 
-func (r *Registry) LoadFromPlugin(gen *protogen.Plugin) error {
-	return r.load(gen)
-}
+//func (r *Registry) LoadFromPlugin(gen *protogen.Plugin) error {
+//	return r.load(gen)
+//}
 
-func (r *Registry) load(gen *protogen.Plugin) error {
-	for filePath, f := range gen.FilesByPath {
+func (r *Registry) load(gen []*desc.FileDescriptor) error {
+	for _, f := range gen {
+		filePath := f.GetFile().GetName()
+		for _,fd := range  f.GetDependencies() {
+			fdPath := fd.GetFile().GetName()
+			r.loadFile(fdPath, fd)
+		}
 		r.loadFile(filePath, f)
 	}
 
-	for filePath, f := range gen.FilesByPath {
-		if !f.Generate {
-			continue
-		}
+	for _, f := range gen {
+		filePath := f.GetFile().GetName()
 		file := r.files[filePath]
 		if err := r.loadServices(file); err != nil {
 			return err
@@ -171,10 +169,11 @@ func (r *Registry) load(gen *protogen.Plugin) error {
 // loadFile loads messages, enumerations and fields from "file".
 // It does not loads services and methods in "file".  You need to call
 // loadServices after loadFiles is called for all files to load services and methods.
-func (r *Registry) loadFile(filePath string, file *protogen.File) {
+func (r *Registry) loadFile(filePath string, file *desc.FileDescriptor) {
+
 	pkg := GoPackage{
-		Path: string(file.GoImportPath),
-		Name: string(file.GoPackageName),
+		Path: file.GetFile().GetName(),
+		Name: file.GetPackage(),
 	}
 	if r.standalone {
 		pkg.Alias = "ext" + strings.Title(pkg.Name)
@@ -189,15 +188,18 @@ func (r *Registry) loadFile(filePath string, file *protogen.File) {
 			}
 		}
 	}
+
 	f := &File{
-		FileDescriptorProto:     file.Proto,
+		FileDescriptorProto:     file.AsFileDescriptorProto(),
 		GoPkg:                   pkg,
-		GeneratedFilenamePrefix: file.GeneratedFilenamePrefix,
+		//GeneratedFilenamePrefix: file.GeneratedFilenamePrefix,
+		//"GeneratedFilenamePrefix": "",
 	}
 
 	r.files[filePath] = f
-	r.registerMsg(f, nil, file.Proto.MessageType)
-	r.registerEnum(f, nil, file.Proto.EnumType)
+
+	r.registerMsg(f, nil, file.AsFileDescriptorProto().MessageType)
+	r.registerEnum(f, nil, file.AsFileDescriptorProto().EnumType)
 }
 
 func (r *Registry) registerMsg(file *File, outerPath []string, msgs []*descriptorpb.DescriptorProto) {
@@ -209,6 +211,7 @@ func (r *Registry) registerMsg(file *File, outerPath []string, msgs []*descripto
 			Index:             i,
 			ForcePrefixedName: r.standalone,
 		}
+
 		for _, fd := range md.GetField() {
 			m.Fields = append(m.Fields, &Field{
 				Message:              m,
@@ -223,6 +226,7 @@ func (r *Registry) registerMsg(file *File, outerPath []string, msgs []*descripto
 		var outers []string
 		outers = append(outers, outerPath...)
 		outers = append(outers, m.GetName())
+
 		r.registerMsg(file, outers, m.GetNestedType())
 		r.registerEnum(file, outers, m.GetEnumType())
 	}

@@ -2,10 +2,10 @@ package descriptor
 
 import (
 	"fmt"
-	"github.com/roverliang/grpc2openapi/openapi/httprule"
 	"strings"
 
 	"github.com/golang/glog"
+	"github.com/roverliang/grpc2openapi/openapi/httprule"
 	options "google.golang.org/genproto/googleapis/api/annotations"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/descriptorpb"

@@ -2,12 +2,11 @@ package descriptor
 
 import (
 	"fmt"
-	"github.com/roverliang/grpc2openapi/openapi/httprule"
-	"strings"
-
 	"github.com/roverliang/grpc2openapi/openapi/casing"
+	"github.com/roverliang/grpc2openapi/openapi/httprule"
 	"google.golang.org/protobuf/types/descriptorpb"
 	"google.golang.org/protobuf/types/pluginpb"
+	"strings"
 )
 
 // IsWellKnownType returns true if the provided fully qualified type name is considered 'well-known'.

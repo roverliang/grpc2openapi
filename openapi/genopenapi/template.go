@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"math"
 	"net/textproto"
-	"os"
 	"reflect"
 	"regexp"
 	"sort"
@@ -1792,7 +1791,7 @@ func enumValueProtoComments(reg *descriptor.Registry, enum *descriptor.Enum) str
 
 func protoComments(reg *descriptor.Registry, file *descriptor.File, outers []string, typeName string, typeIndex int32, fieldPaths ...int32) string {
 	if file.SourceCodeInfo == nil {
-		fmt.Fprintln(os.Stderr, "descriptor.File should not contain nil SourceCodeInfo")
+		//fmt.Fprintln(os.Stderr, "descriptor.File should not contain nil SourceCodeInfo")
 		return ""
 	}
 

@@ -46,7 +46,7 @@ func init() {
 	GenCommand.Flags().BoolVar(&includePackageInTags, "include_package_in_tags", false, "if unset, the gRPC service name is added to the `Tags` field of each operation. If set and the `package` directive is shown in the proto file, the package name will be prepended to the service name")
 	GenCommand.Flags().BoolVar(&useFQNForOpenAPIName, "fqn_for_openapi_name", false, "if set, the object's OpenAPI names will use the fully qualified names from the proto definition (ie my.package.MyMessage.MyInnerMessage")
 	GenCommand.Flags().BoolVar(&useGoTemplate, "use_go_templates", false, "if set, you can use Go templates in protofile comments")
-	GenCommand.Flags().BoolVar(&disableDefaultErrors, "disable_default_errors", false, "if set, disables generation of default errors. This is useful if you have defined custom error handling")
+	GenCommand.Flags().BoolVar(&disableDefaultErrors, "disable_default_errors", true, "if set, disables generation of default errors. This is useful if you have defined custom error handling")
 	GenCommand.Flags().BoolVar(&enumsAsInts, "enums_as_ints", false, "whether to render enum values as integers, as opposed to string values")
 	GenCommand.Flags().BoolVar(&simpleOperationIDs, "simple_operation_ids", false, "whether to remove the service prefix in the operationID generation. Can introduce duplicate operationIDs, use with caution.")
 	GenCommand.Flags().StringVar(&openAPIConfiguration, "openapi_configuration", "", "path to file which describes the OpenAPI Configuration in YAML format")
@@ -57,7 +57,7 @@ var GenCommand = &cobra.Command{
 	Use:   "gen",
 	Short: "gen swagger api",
 	Run: func(cmd *cobra.Command, args []string) {
-		fds, err := openapi.LoadProtosetFile("/Users/roverliang/Downloads/taiping_api.bin")
+		fds, err := openapi.LoadProtosetFile("/Users/roverliang/go/src/tds-service-agent/api.bin")
 
 		if err != nil {
 			klog.Error(err)
@@ -82,7 +82,6 @@ var GenCommand = &cobra.Command{
 		reg.SetGenerateUnboundMethods(generateUnboundMethods)
 
 		gen := genopenapi.New(reg)
-
 		if err := reg.Load(fds); err != nil {
 			klog.Info(err)
 			return
@@ -90,7 +89,9 @@ var GenCommand = &cobra.Command{
 
 		var targets []*descriptor.File
 		for _, f := range fds {
-			f.AsFileDescriptorProto()
+			if f.GetFile().GetName() == descriptor.ReflectionProto {
+				continue
+			}
 			filePath := f.GetFile().GetName()
 			f, err := reg.LookupFile(filePath)
 			if err != nil {

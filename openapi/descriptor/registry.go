@@ -13,6 +13,8 @@ import (
 	"google.golang.org/protobuf/types/descriptorpb"
 )
 
+const ReflectionProto = "reflection/grpc_reflection_v1alpha/reflection.proto"
+
 // Registry is a registry of information extracted from pluginpb.CodeGeneratorRequest.
 type Registry struct {
 	//namespace is RESTful api prefix .suchas: http://__HOST__/namespace/__API__
@@ -151,15 +153,24 @@ func (r *Registry) Load(req []*desc.FileDescriptor) error {
 func (r *Registry) load(gen []*desc.FileDescriptor) error {
 	for _, f := range gen {
 		filePath := f.GetFile().GetName()
+		if filePath == ReflectionProto {
+			continue
+		}
+
 		for _,fd := range  f.GetDependencies() {
 			fdPath := fd.GetFile().GetName()
 			r.loadFile(fdPath, fd)
 		}
+
 		r.loadFile(filePath, f)
 	}
 
 	for _, f := range gen {
 		filePath := f.GetFile().GetName()
+		if filePath == ReflectionProto {
+			continue
+		}
+
 		file := r.files[filePath]
 		if err := r.loadServices(file); err != nil {
 			return err
@@ -273,6 +284,7 @@ func (r *Registry) LookupMsg(location, name string) (*Message, error) {
 		}
 		components = components[:len(components)-1]
 	}
+
 	return nil, fmt.Errorf("no message found: %s", name)
 }
 

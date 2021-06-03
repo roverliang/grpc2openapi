@@ -108,7 +108,7 @@ func NewOpenapiInfoObject(title string, version string) openapiInfoObject {
 //获取protoset 的Path
 func Tags(fds []*desc.FileDescriptor) (tags []string) {
 	for _, fd := range fds {
-		if fd.GetFile().GetName() == reflectionProto {
+		if strings.Contains(fd.GetFile().GetName(), reflectionProto) {
 			continue
 		}
 		svcDs := fd.GetServices()
@@ -123,7 +123,7 @@ func Paths(fds []*desc.FileDescriptor) (openapiPathsObject, error) {
 	var openapiPathObj = make(openapiPathsObject)
 
 	for _, fd := range fds {
-		if fd.GetFile().GetName() == reflectionProto {
+		if strings.Contains(fd.GetFile().GetName(), reflectionProto) {
 			continue
 		}
 

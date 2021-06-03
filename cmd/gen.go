@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"io/ioutil"
 	"k8s.io/klog/v2"
+	"strings"
 )
 
 var (
@@ -89,9 +90,10 @@ var GenCommand = &cobra.Command{
 
 		var targets []*descriptor.File
 		for _, f := range fds {
-			if f.GetFile().GetName() == descriptor.ReflectionProto {
+			if strings.Contains(f.GetFile().GetName(), descriptor.ReflectionProto) {
 				continue
 			}
+
 			filePath := f.GetFile().GetName()
 			f, err := reg.LookupFile(filePath)
 			if err != nil {

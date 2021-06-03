@@ -13,7 +13,7 @@ import (
 	"google.golang.org/protobuf/types/descriptorpb"
 )
 
-const ReflectionProto = "reflection/grpc_reflection_v1alpha/reflection.proto"
+const ReflectionProto = "reflection.proto"
 
 // Registry is a registry of information extracted from pluginpb.CodeGeneratorRequest.
 type Registry struct {
@@ -153,7 +153,8 @@ func (r *Registry) Load(req []*desc.FileDescriptor) error {
 func (r *Registry) load(gen []*desc.FileDescriptor) error {
 	for _, f := range gen {
 		filePath := f.GetFile().GetName()
-		if filePath == ReflectionProto {
+
+		if strings.Contains(filePath, ReflectionProto) {
 			continue
 		}
 
@@ -167,9 +168,10 @@ func (r *Registry) load(gen []*desc.FileDescriptor) error {
 
 	for _, f := range gen {
 		filePath := f.GetFile().GetName()
-		if filePath == ReflectionProto {
+		if strings.Contains(filePath, ReflectionProto) {
 			continue
 		}
+
 
 		file := r.files[filePath]
 		if err := r.loadServices(file); err != nil {

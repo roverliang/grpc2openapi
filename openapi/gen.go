@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-const reflectionProto = "reflection/grpc_reflection_v1alpha/reflection.proto"
+const reflectionProto = "reflection.proto"
 
 type httpInfo struct {
 	path        string

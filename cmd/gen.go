@@ -67,6 +67,18 @@ var GenCommand = &cobra.Command{
 
 		reg := descriptor.NewRegistry()
 
+		ch := []descriptor.CommonHeader{
+			descriptor.CommonHeader{
+				Name:        "token",
+				Value:       "value",
+				In:          "header",
+				Type:        "string",
+				Description: "header token",
+			},
+		}
+
+		//reg.SetHost("127.0.0.1:61234")
+		reg.SetCommonHeader(ch)
 		reg.SetNamespace(namespace)
 		reg.SetPrefix(importPrefix)
 		reg.SetAllowDeleteBody(allowDeleteBody)

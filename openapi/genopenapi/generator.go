@@ -203,6 +203,8 @@ func (g *generator) Generate(targets []*descriptor.File) ([]*descriptor.Response
 
 	if g.reg.IsAllowMerge() {
 		targetOpenAPI := mergeTargetFile(openapis, g.reg.GetMergeFileName())
+		g.AddHost(targetOpenAPI.swagger)
+		g.AddParameters(targetOpenAPI.swagger)
 		f, err := encodeOpenAPI(targetOpenAPI)
 		if err != nil {
 			return nil, fmt.Errorf("failed to encode OpenAPI for %s: %s", g.reg.GetMergeFileName(), err)
@@ -211,6 +213,8 @@ func (g *generator) Generate(targets []*descriptor.File) ([]*descriptor.Response
 		glog.V(1).Infof("New OpenAPI file will emit")
 	} else {
 		for _, file := range openapis {
+			g.AddHost(file.swagger)
+			g.AddParameters(file.swagger)
 			f, err := encodeOpenAPI(file)
 			if err != nil {
 				return nil, fmt.Errorf("failed to encode OpenAPI for %s: %s", file.fileName, err)
@@ -220,6 +224,59 @@ func (g *generator) Generate(targets []*descriptor.File) ([]*descriptor.Response
 		}
 	}
 	return files, nil
+}
+
+// AddHost 添加 swagger host
+func (g *generator) AddHost(swagger *openapiSwaggerObject) {
+	swagger.Host = g.reg.Host()
+}
+
+// AddParameters  添加swagger json Parameters
+func (g *generator) AddParameters(swagger *openapiSwaggerObject) {
+	//添加公共header 头
+	var parameters openapiParametersObject
+	swagger.Parameters = make(map[string]openapiParameterObject)
+	for _, ch := range g.reg.CommonHeader() {
+		swagger.Parameters[ch.Name] = openapiParameterObject{
+			Name:        ch.Name,
+			Description: ch.Description,
+			In:          ch.In,
+			Required:    ch.Required,
+			Type:        ch.Type,
+		}
+
+		parameterRef := openapiParameterObject{
+			Name: ch.Name,
+			In: "header",
+			Type: ch.Type,
+			Format: ch.Type,
+			Default: ch.Value,
+		}
+		parameters = append(parameters, parameterRef)
+	}
+
+	// 为path 添加 parameters
+	for _, path := range swagger.Paths {
+		if path.Get != nil {
+			path.Get.Parameters = append(path.Get.Parameters, parameters...)
+		}
+
+		if path.Post != nil {
+			path.Post.Parameters = append(path.Post.Parameters, parameters...)
+		}
+
+		if path.Put != nil {
+			path.Put.Parameters = append(path.Put.Parameters, parameters...)
+		}
+
+		if path.Patch != nil {
+			path.Patch.Parameters = append(path.Patch.Parameters, parameters...)
+		}
+
+		if path.Delete != nil {
+			path.Delete.Parameters = append(path.Delete.Parameters, parameters...)
+		}
+	}
 }
 
 // AddErrorDefs Adds google.rpc.Status and google.protobuf.Any

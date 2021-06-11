@@ -15,15 +15,31 @@ import (
 
 const ReflectionProto = "reflection.proto"
 
+
+type CommonHeader struct {
+	Name        string
+	Value       string
+	Required    bool
+	In          string
+	Type        string
+	Description string
+}
+
 // Registry is a registry of information extracted from pluginpb.CodeGeneratorRequest.
 type Registry struct {
 	//namespace is RESTful api prefix .suchas: http://__HOST__/namespace/__API__
 	namespace string
 
-	// msgs is a mapping from fully-qualified message name to descriptor
+	//host is addr, swagger json host
+	host  string
+
+	//swagger json common header。success as auth token
+	commonHeader []CommonHeader
+
+	// msgs is a mapping from fully-qualified message Name to descriptor
 	msgs map[string]*Message
 
-	// enums is a mapping from fully-qualified enum name to descriptor
+	// enums is a mapping from fully-qualified enum Name to descriptor
 	enums map[string]*Enum
 
 	// files is a mapping from file path to descriptor
@@ -47,26 +63,26 @@ type Registry struct {
 	// allowMerge generation one OpenAPI file out of multiple protos
 	allowMerge bool
 
-	// mergeFileName target OpenAPI file name after merge
+	// mergeFileName target OpenAPI file Name after merge
 	mergeFileName string
 
 	// allowRepeatedFieldsInBody permits repeated field in body field path of `google.api.http` annotation option
 	allowRepeatedFieldsInBody bool
 
-	// includePackageInTags controls whether the package name defined in the `package` directive
-	// in the proto file can be prepended to the gRPC service name in the `Tags` field of every operation.
+	// includePackageInTags controls whether the package Name defined in the `package` directive
+	// in the proto file can be prepended to the gRPC service Name in the `Tags` field of every operation.
 	includePackageInTags bool
 
 	// repeatedPathParamSeparator specifies how path parameter repeated fields are separated
 	repeatedPathParamSeparator repeatedFieldSeparator
 
-	// useJSONNamesForFields if true json tag name is used for generating fields in OpenAPI definitions,
-	// otherwise the original proto name is used. It's helpful for synchronizing the OpenAPI definition
+	// useJSONNamesForFields if true json tag Name is used for generating fields in OpenAPI definitions,
+	// otherwise the original proto Name is used. It's helpful for synchronizing the OpenAPI definition
 	// with gRPC-Gateway response, if it uses json tags for marshaling.
 	useJSONNamesForFields bool
 
-	// useFQNForOpenAPIName if true OpenAPI names will use the full qualified name (FQN) from proto definition,
-	// and generate a dot-separated OpenAPI name concatenating all elements from the proto FQN.
+	// useFQNForOpenAPIName if true OpenAPI names will use the full qualified Name (FQN) from proto definition,
+	// and generate a dot-separated OpenAPI Name concatenating all elements from the proto FQN.
 	// If false, the default behavior is to concat the last 2 elements of the FQN if they are unique, otherwise concat
 	// all the elements of the FQN without any separator
 	useFQNForOpenAPIName bool
@@ -91,20 +107,20 @@ type Registry struct {
 	// has no HttpRule annotation.
 	warnOnUnboundMethods bool
 
-	// fileOptions is a mapping of file name to additional OpenAPI file options
+	// fileOptions is a mapping of file Name to additional OpenAPI file options
 	fileOptions map[string]*options.Swagger
 
-	// methodOptions is a mapping of fully-qualified method name to additional OpenAPI method options
+	// methodOptions is a mapping of fully-qualified method Name to additional OpenAPI method options
 	methodOptions map[string]*options.Operation
 
-	// messageOptions is a mapping of fully-qualified message name to additional OpenAPI message options
+	// messageOptions is a mapping of fully-qualified message Name to additional OpenAPI message options
 	messageOptions map[string]*options.Schema
 
-	//serviceOptions is a mapping of fully-qualified service name to additional OpenAPI service options
+	//serviceOptions is a mapping of fully-qualified service Name to additional OpenAPI service options
 	serviceOptions map[string]*options.Tag
 
-	// fieldOptions is a mapping of the fully-qualified name of the parent message concat
-	// field name and a period to additional OpenAPI field options
+	// fieldOptions is a mapping of the fully-qualified Name of the parent message concat
+	// field Name and a period to additional OpenAPI field options
 	fieldOptions map[string]*options.JSONSchema
 
 	// generateUnboundMethods causes the registry to generate proxy methods even for
@@ -114,6 +130,24 @@ type Registry struct {
 	// omitPackageDoc, if false, causes a package comment to be included in the generated code.
 	omitPackageDoc bool
 }
+
+func (r *Registry) CommonHeader() []CommonHeader {
+	return r.commonHeader
+}
+
+func (r *Registry) SetCommonHeader(commonHeader []CommonHeader) {
+	r.commonHeader = commonHeader
+}
+
+func (r *Registry) Host() string {
+	return r.host
+}
+
+func (r *Registry) SetHost(host string) {
+	r.host = host
+}
+
+
 
 type repeatedFieldSeparator struct {
 	name string
@@ -237,7 +271,7 @@ func (r *Registry) registerMsg(file *File, outerPath []string, msgs []*descripto
 		}
 		file.Messages = append(file.Messages, m)
 		r.msgs[m.FQMN()] = m
-		glog.V(1).Infof("register name: %s", m.FQMN())
+		glog.V(1).Infof("register Name: %s", m.FQMN())
 
 		var outers []string
 		outers = append(outers, outerPath...)
@@ -259,12 +293,12 @@ func (r *Registry) registerEnum(file *File, outerPath []string, enums []*descrip
 		}
 		file.Enums = append(file.Enums, e)
 		r.enums[e.FQEN()] = e
-		glog.V(1).Infof("register enum name: %s", e.FQEN())
+		glog.V(1).Infof("register enum Name: %s", e.FQEN())
 	}
 }
 
-// LookupMsg looks up a message type by "name".
-// It tries to resolve "name" from "location" if "name" is a relative message name.
+// LookupMsg looks up a message type by "Name".
+// It tries to resolve "Name" from "location" if "Name" is a relative message Name.
 func (r *Registry) LookupMsg(location, name string) (*Message, error) {
 	glog.V(1).Infof("lookup %s from %s", name, location)
 	if strings.HasPrefix(name, ".") {
@@ -290,8 +324,8 @@ func (r *Registry) LookupMsg(location, name string) (*Message, error) {
 	return nil, fmt.Errorf("no message found: %s", name)
 }
 
-// LookupEnum looks up a enum type by "name".
-// It tries to resolve "name" from "location" if "name" is a relative enum name.
+// LookupEnum looks up a enum type by "Name".
+// It tries to resolve "Name" from "location" if "Name" is a relative enum Name.
 func (r *Registry) LookupEnum(location, name string) (*Enum, error) {
 	glog.V(1).Infof("lookup enum %s from %s", name, location)
 	if strings.HasPrefix(name, ".") {
@@ -316,7 +350,7 @@ func (r *Registry) LookupEnum(location, name string) (*Enum, error) {
 	return nil, fmt.Errorf("no enum found: %s", name)
 }
 
-// LookupFile looks up a file by name.
+// LookupFile looks up a file by Name.
 func (r *Registry) LookupFile(name string) (*File, error) {
 	f, ok := r.files[name]
 	if !ok {
@@ -325,12 +359,12 @@ func (r *Registry) LookupFile(name string) (*File, error) {
 	return f, nil
 }
 
-// LookupExternalHTTPRules looks up external http rules by fully qualified service method name
+// LookupExternalHTTPRules looks up external http rules by fully qualified service method Name
 func (r *Registry) LookupExternalHTTPRules(qualifiedMethodName string) []*annotations.HttpRule {
 	return r.externalHTTPRules[qualifiedMethodName]
 }
 
-// AddExternalHTTPRule adds an external http rule for the given fully qualified service method name
+// AddExternalHTTPRule adds an external http rule for the given fully qualified service method Name
 func (r *Registry) AddExternalHTTPRule(qualifiedMethodName string, rule *annotations.HttpRule) {
 	r.externalHTTPRules[qualifiedMethodName] = append(r.externalHTTPRules[qualifiedMethodName], rule)
 }
@@ -358,7 +392,7 @@ func (r *Registry) UnboundExternalHTTPRules() []string {
 	return missingMethods
 }
 
-// AddPkgMap adds a mapping from a .proto file to proto package name.
+// AddPkgMap adds a mapping from a .proto file to proto package Name.
 func (r *Registry) AddPkgMap(file, protoPkg string) {
 	r.pkgMap[file] = protoPkg
 }
@@ -382,7 +416,7 @@ func (r *Registry) ReserveGoPackageAlias(alias, pkgpath string) error {
 		if taken == pkgpath {
 			return nil
 		}
-		return fmt.Errorf("package name %s is already taken. Use another alias", alias)
+		return fmt.Errorf("package Name %s is already taken. Use another alias", alias)
 	}
 	r.pkgAliases[alias] = pkgpath
 	return nil
@@ -422,7 +456,7 @@ func (r *Registry) IsAllowMerge() bool {
 	return r.allowMerge
 }
 
-// SetMergeFileName controls the target OpenAPI file name out of multiple protos
+// SetMergeFileName controls the target OpenAPI file Name out of multiple protos
 func (r *Registry) SetMergeFileName(mergeFileName string) {
 	r.mergeFileName = mergeFileName
 }
@@ -439,14 +473,14 @@ func (r *Registry) IsAllowRepeatedFieldsInBody() bool {
 	return r.allowRepeatedFieldsInBody
 }
 
-// SetIncludePackageInTags controls whether the package name defined in the `package` directive
-// in the proto file can be prepended to the gRPC service name in the `Tags` field of every operation.
+// SetIncludePackageInTags controls whether the package Name defined in the `package` directive
+// in the proto file can be prepended to the gRPC service Name in the `Tags` field of every operation.
 func (r *Registry) SetIncludePackageInTags(allow bool) {
 	r.includePackageInTags = allow
 }
 
-// IsIncludePackageInTags checks whether the package name defined in the `package` directive
-// in the proto file can be prepended to the gRPC service name in the `Tags` field of every operation.
+// IsIncludePackageInTags checks whether the package Name defined in the `package` directive
+// in the proto file can be prepended to the gRPC service Name in the `Tags` field of every operation.
 func (r *Registry) IsIncludePackageInTags() bool {
 	return r.includePackageInTags
 }
@@ -457,7 +491,7 @@ func (r *Registry) GetRepeatedPathParamSeparator() rune {
 	return r.repeatedPathParamSeparator.sep
 }
 
-// GetRepeatedPathParamSeparatorName returns the name path parameter repeated
+// GetRepeatedPathParamSeparatorName returns the Name path parameter repeated
 // fields repeatedFieldSeparator. I.e. 'csv', 'pipe', 'ssv' or 'tsv'
 func (r *Registry) GetRepeatedPathParamSeparatorName() string {
 	return r.repeatedPathParamSeparator.name
@@ -506,7 +540,7 @@ func (r *Registry) GetUseFQNForOpenAPIName() bool {
 	return r.useFQNForOpenAPIName
 }
 
-// GetMergeFileName return the target merge OpenAPI file name
+// GetMergeFileName return the target merge OpenAPI file Name
 func (r *Registry) GetMergeFileName() string {
 	return r.mergeFileName
 }

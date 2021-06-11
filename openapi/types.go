@@ -58,8 +58,9 @@ type extension struct {
 
 // http://swagger.io/specification/#swaggerObject
 type openapiSwaggerObject struct {
-	Swagger             string                              `json:"swagger"`
-	Info                openapiInfoObject                   `json:"info"`
+	Swagger             string            `json:"swagger"`
+	Info                openapiInfoObject `json:"info"`
+	Parameters          map[string]openapiParameterObject   `json:"parameters"`
 	Tags                []openapiTagObject                  `json:"tags,omitempty"`
 	Host                string                              `json:"host,omitempty"`
 	BasePath            string                              `json:"basePath,omitempty"`

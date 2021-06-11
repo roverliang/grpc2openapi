@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-// IsWellKnownType returns true if the provided fully qualified type name is considered 'well-known'.
+// IsWellKnownType returns true if the provided fully qualified type Name is considered 'well-known'.
 func IsWellKnownType(typeName string) bool {
 	_, ok := wellKnownTypeConv[typeName]
 	return ok
@@ -19,7 +19,7 @@ func IsWellKnownType(typeName string) bool {
 type GoPackage struct {
 	// Path is the package path to the package.
 	Path string
-	// Name is the package name of the package
+	// Name is the package Name of the package
 	Name string
 	// Alias is an alias of the package unique within the current invocation of gRPC-Gateway generator.
 	Alias string
@@ -64,7 +64,7 @@ type File struct {
 	Services []*Service
 }
 
-// Pkg returns package name or alias if it's present
+// Pkg returns package Name or alias if it's present
 func (f *File) Pkg() string {
 	pkg := f.GoPkg.Name
 	if alias := f.GoPkg.Alias; alias != "" {
@@ -93,7 +93,7 @@ type Message struct {
 	ForcePrefixedName bool
 }
 
-// FQMN returns a fully qualified message name of this message.
+// FQMN returns a fully qualified message Name of this message.
 func (m *Message) FQMN() string {
 	components := []string{""}
 	if m.File.Package != nil {
@@ -104,8 +104,8 @@ func (m *Message) FQMN() string {
 	return strings.Join(components, ".")
 }
 
-// GoType returns a go type name for the message type.
-// It prefixes the type name with the package alias if
+// GoType returns a go type Name for the message type.
+// It prefixes the type Name with the package alias if
 // its belonging package is not "currentPackage".
 func (m *Message) GoType(currentPackage string) string {
 	var components []string
@@ -126,13 +126,13 @@ type Enum struct {
 	File *File
 	// Outers is a list of outer messages if this enum is a nested type.
 	Outers []string
-	// Index is a enum index value.
+	// Index is a enum index Value.
 	Index int
 	// ForcePrefixedName when set to true, prefixes a type with a package prefix.
 	ForcePrefixedName bool
 }
 
-// FQEN returns a fully qualified enum name of this enum.
+// FQEN returns a fully qualified enum Name of this enum.
 func (e *Enum) FQEN() string {
 	components := []string{""}
 	if e.File.Package != nil {
@@ -143,8 +143,8 @@ func (e *Enum) FQEN() string {
 	return strings.Join(components, ".")
 }
 
-// GoType returns a go type name for the enum type.
-// It prefixes the type name with the package alias if
+// GoType returns a go type Name for the enum type.
+// It prefixes the type Name with the package alias if
 // its belonging package is not "currentPackage".
 func (e *Enum) GoType(currentPackage string) string {
 	var components []string
@@ -169,7 +169,7 @@ type Service struct {
 	ForcePrefixedName bool
 }
 
-// FQSN returns the fully qualified service name of this service.
+// FQSN returns the fully qualified service Name of this service.
 func (s *Service) FQSN() string {
 	components := []string{""}
 	if s.File.Package != nil {
@@ -179,7 +179,7 @@ func (s *Service) FQSN() string {
 	return strings.Join(components, ".")
 }
 
-// InstanceName returns object name of the service with package prefix if needed
+// InstanceName returns object Name of the service with package prefix if needed
 func (s *Service) InstanceName() string {
 	if !s.ForcePrefixedName {
 		return s.GetName()
@@ -187,7 +187,7 @@ func (s *Service) InstanceName() string {
 	return fmt.Sprintf("%s.%s", s.File.Pkg(), s.GetName())
 }
 
-// ClientConstructorName returns name of the Client constructor with package prefix if needed
+// ClientConstructorName returns Name of the Client constructor with package prefix if needed
 func (s *Service) ClientConstructorName() string {
 	constructor := "New" + s.GetName() + "Client"
 	if !s.ForcePrefixedName {
@@ -208,7 +208,7 @@ type Method struct {
 	Bindings     []*Binding
 }
 
-// FQMN returns a fully qualified rpc method name of this method.
+// FQMN returns a fully qualified rpc method Name of this method.
 func (m *Method) FQMN() string {
 	var components []string
 	components = append(components, m.Service.FQSN())
@@ -258,7 +258,7 @@ type Field struct {
 	ForcePrefixedName bool
 }
 
-// FQFN returns a fully qualified field name of this field.
+// FQFN returns a fully qualified field Name of this field.
 func (f *Field) FQFN() string {
 	return strings.Join([]string{f.Message.FQMN(), f.GetName()}, ".")
 }
@@ -274,7 +274,7 @@ type Parameter struct {
 }
 
 // ConvertFuncExpr returns a go expression of a converter function.
-// The converter function converts a string into a value for the parameter.
+// The converter function converts a string into a Value for the parameter.
 func (p Parameter) ConvertFuncExpr() (string, error) {
 	tbl := proto3ConvertFuncs
 	if !p.IsProto2() && p.IsRepeated() {
@@ -344,7 +344,7 @@ func (p FieldPath) IsNestedProto3() bool {
 	return false
 }
 
-// AssignableExpr is an assignable expression in Go to be used to assign a value to the target field.
+// AssignableExpr is an assignable expression in Go to be used to assign a Value to the target field.
 // It starts with "msgExpr", which is the go expression of the method request object.
 func (p FieldPath) AssignableExpr(msgExpr string) string {
 	l := len(p)
@@ -390,7 +390,7 @@ func (p FieldPath) AssignableExpr(msgExpr string) string {
 
 // FieldPathComponent is a path component in FieldPath
 type FieldPathComponent struct {
-	// Name is a name of the proto field which this component corresponds to.
+	// Name is a Name of the proto field which this component corresponds to.
 	// TODO(yugui) is this necessary?
 	Name string
 	// Target is the proto field which this component corresponds to.

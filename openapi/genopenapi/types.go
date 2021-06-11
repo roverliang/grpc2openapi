@@ -60,6 +60,7 @@ type extension struct {
 // http://swagger.io/specification/#swaggerObject
 type openapiSwaggerObject struct {
 	Swagger             string                              `json:"swagger"`
+	Parameters          map[string]openapiParameterObject   `json:"parameters"`
 	Info                openapiInfoObject                   `json:"info"`
 	Tags                []openapiTagObject                  `json:"tags,omitempty"`
 	Host                string                              `json:"host,omitempty"`
@@ -132,10 +133,10 @@ type openapiParametersObject []openapiParameterObject
 
 // http://swagger.io/specification/#parameterObject
 type openapiParameterObject struct {
-	Name             string              `json:"name"`
+	Name             string              `json:"name,omitempty"`
 	Description      string              `json:"description,omitempty"`
 	In               string              `json:"in,omitempty"`
-	Required         bool                `json:"required"`
+	Required         bool                `json:"required,omitempty"`
 	Type             string              `json:"type,omitempty"`
 	Format           string              `json:"format,omitempty"`
 	Items            *openapiItemsObject `json:"items,omitempty"`
@@ -143,7 +144,7 @@ type openapiParameterObject struct {
 	CollectionFormat string              `json:"collectionFormat,omitempty"`
 	Default          string              `json:"default,omitempty"`
 	MinItems         *int                `json:"minItems,omitempty"`
-
+	Ref             []map[string]string			 `json:"$ref,omitempty"`
 	// Or you can explicitly refer to another type. If this is defined all
 	// other fields should be empty
 	Schema *openapiSchemaObject `json:"schema,omitempty"`

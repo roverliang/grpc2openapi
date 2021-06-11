@@ -46,7 +46,7 @@ func registerOpenAPIOptions(registry *Registry, openAPIConfig *openapiconfig.Ope
 func (r *Registry) LoadOpenAPIConfigFromYAML(yamlFile string) error {
 	yamlFileContents, err := ioutil.ReadFile(yamlFile)
 	if err != nil {
-		return fmt.Errorf("failed to read gRPC API Configuration description from '%v': %v", yamlFile, err)
+		return fmt.Errorf("failed to read gRPC API Configuration Description from '%v': %v", yamlFile, err)
 	}
 
 	config, err := loadOpenAPIConfigFromYAML(yamlFileContents, yamlFile)

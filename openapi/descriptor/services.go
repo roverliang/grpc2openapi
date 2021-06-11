@@ -213,14 +213,14 @@ func extractAPIOptions(meth *descriptorpb.MethodDescriptorProto) (*options.HttpR
 }
 
 func defaultAPIOptions(svc *Service, md *descriptorpb.MethodDescriptorProto) (*options.HttpRule, error) {
-	// FQSN prefixes the service's full name with a '.', e.g.: '.example.ExampleService'
+	// FQSN prefixes the service's full Name with a '.', e.g.: '.example.ExampleService'
 	fqsn := strings.TrimPrefix(svc.FQSN(), ".")
 
 	// This generates an HttpRule that matches the gRPC mapping to HTTP/2 described in
 	// https://github.com/grpc/grpc/blob/master/doc/PROTOCOL-HTTP2.md#requests
 	// i.e.:
 	//   * method is POST
-	//   * path is "/<service name>/<method name>"
+	//   * path is "/<service Name>/<method Name>"
 	//   * body should contain the serialized request message
 	rule := &options.HttpRule{
 		Pattern: &options.HttpRule_Post{
@@ -248,7 +248,7 @@ func (r *Registry) newParam(meth *Method, path string) (Parameter, error) {
 		if IsWellKnownType(*target.TypeName) {
 			glog.V(2).Infoln("found well known aggregate type:", target)
 		} else {
-			return Parameter{}, fmt.Errorf("%s.%s: %s is a protobuf message type. Protobuf message types cannot be used as path parameters, use a scalar value type (such as string) instead", meth.Service.GetName(), meth.GetName(), path)
+			return Parameter{}, fmt.Errorf("%s.%s: %s is a protobuf message type. Protobuf message types cannot be used as path parameters, use a scalar Value type (such as string) instead", meth.Service.GetName(), meth.GetName(), path)
 		}
 	}
 	return Parameter{
@@ -286,7 +286,7 @@ func (r *Registry) newResponse(meth *Method, path string) (*Body, error) {
 	return &Body{FieldPath: FieldPath(fields)}, nil
 }
 
-// lookupField looks up a field named "name" within "msg".
+// lookupField looks up a field named "Name" within "msg".
 // It returns nil if no such field found.
 func lookupField(msg *Message, name string) *Field {
 	for _, f := range msg.Fields {

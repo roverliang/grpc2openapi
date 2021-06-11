@@ -78,6 +78,7 @@ var GenCommand = &cobra.Command{
 		}
 
 		//reg.SetHost("127.0.0.1:61234")
+		reg.SetSchema("http")
 		reg.SetCommonHeader(ch)
 		reg.SetNamespace(namespace)
 		reg.SetPrefix(importPrefix)

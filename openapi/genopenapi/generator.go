@@ -203,6 +203,7 @@ func (g *generator) Generate(targets []*descriptor.File) ([]*descriptor.Response
 
 	if g.reg.IsAllowMerge() {
 		targetOpenAPI := mergeTargetFile(openapis, g.reg.GetMergeFileName())
+		g.AddSchema(targetOpenAPI.swagger)
 		g.AddHost(targetOpenAPI.swagger)
 		g.AddParameters(targetOpenAPI.swagger)
 		f, err := encodeOpenAPI(targetOpenAPI)
@@ -213,6 +214,7 @@ func (g *generator) Generate(targets []*descriptor.File) ([]*descriptor.Response
 		glog.V(1).Infof("New OpenAPI file will emit")
 	} else {
 		for _, file := range openapis {
+			g.AddSchema(file.swagger)
 			g.AddHost(file.swagger)
 			g.AddParameters(file.swagger)
 			f, err := encodeOpenAPI(file)
@@ -225,6 +227,13 @@ func (g *generator) Generate(targets []*descriptor.File) ([]*descriptor.Response
 	}
 	return files, nil
 }
+
+
+// AddHost 添加 swagger host
+func (g *generator) AddSchema(swagger *openapiSwaggerObject) {
+	swagger.Schemes = append(swagger.Schemes, g.reg.Schema())
+}
+
 
 // AddHost 添加 swagger host
 func (g *generator) AddHost(swagger *openapiSwaggerObject) {

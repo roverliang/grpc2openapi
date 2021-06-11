@@ -33,6 +33,8 @@ type Registry struct {
 	//host is addr, swagger json host
 	host  string
 
+	schema string
+
 	//swagger json common header。success as auth token
 	commonHeader []CommonHeader
 
@@ -129,6 +131,14 @@ type Registry struct {
 
 	// omitPackageDoc, if false, causes a package comment to be included in the generated code.
 	omitPackageDoc bool
+}
+
+func (r *Registry) Schema() string {
+	return r.schema
+}
+
+func (r *Registry) SetSchema(schema string) {
+	r.schema = schema
 }
 
 func (r *Registry) CommonHeader() []CommonHeader {

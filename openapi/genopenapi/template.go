@@ -85,8 +85,11 @@ var wktSchemas = map[string]schemaCore{
 	},
 	".google.protobuf.ListValue": {
 		Type: "array",
+		//Items: (*openapiItemsObject)(&schemaCore{
+		//	Type: "object",
+		//}),
 		Items: (*openapiItemsObject)(&schemaCore{
-			Type: "object",
+			Type: "",
 		}),
 	},
 	".google.protobuf.NullValue": {

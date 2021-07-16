@@ -82,7 +82,7 @@ var wktSchemas = map[string]schemaCore{
 	},
 	".google.protobuf.Value": {
 		//Type: "object",
-		Type: "any",
+		Type: "",
 	},
 	".google.protobuf.ListValue": {
 		Type: "array",
@@ -90,7 +90,7 @@ var wktSchemas = map[string]schemaCore{
 		//	Type: "object",
 		//}),
 		Items: (*openapiItemsObject)(&schemaCore{
-			Type: "any",
+			Type: "",
 		}),
 	},
 	".google.protobuf.NullValue": {

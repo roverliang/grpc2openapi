@@ -81,7 +81,8 @@ var wktSchemas = map[string]schemaCore{
 		Type: "object",
 	},
 	".google.protobuf.Value": {
-		Type: "object",
+		//Type: "object",
+		Type: "",
 	},
 	".google.protobuf.ListValue": {
 		Type: "array",
